@@ -108,6 +108,42 @@ body {
 
 .game-main-content {
   height: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	padding: .5%;
+	justify-content: space-between;
+}
+
+.card {
+	width: 25%;
+  padding: 0;
+	overflow: hidden;
+	position: relative;
+}
+
+.face-container {
+  height: 200%;
+  width: 100%;
+	padding: 2%;
+	position: absolute;
+  top: 0;
+}
+
+.flipped .face-container {
+	top: -100%;
+	transition: 500ms;
+}
+
+.show-face, .hide-face {
+  height: 49%;
+}
+
+.middle-face {
+  height: 2%;
+}
+
+.hide-face {
+  background-color: #D0D0D0;
 }
 
 .game-bottom-bar {
@@ -230,4 +266,98 @@ body {
 
 .dialog-button:hover:before {
   width: 100%;
+}
+
+/* colors */
+
+.color-0 {
+  background-color: aqua;
+}
+
+.color-1 {
+  background-color: bisque;
+}
+
+.color-2 {
+  background-color: blue;
+}
+
+.color-3 {
+  background-color: blueviolet;
+}
+
+.color-4 {
+  background-color: brown;
+}
+
+.color-5 {
+  background-color: cadetblue;
+}
+
+.color-6 {
+  background-color: chartreuse;
+}
+
+.color-7 {
+  background-color: coral;
+}
+
+.color-8 {
+  background-color: aquamarine;
+}
+
+.color-9 {
+  background-color: black;
+}
+
+.color-10 {
+  background-color: burlywood;
+}
+
+.color-11 {
+  background-color: chocolate;
+}
+
+.color-12 {
+  background-color: olive;
+}
+
+.color-13 {
+  background-color: crimson;
+}
+
+.color-14 {
+  background-color: darkblue;
+}
+
+.color-15 {
+  background-color: darkmagenta;
+}
+
+.color-16 {
+  background-color: deeppink;
+}
+
+.color-17 {
+  background-color: forestgreen;
+}
+
+.color-18 {
+  background-color: gold;
+}
+
+.color-19 {
+  background-color: goldenrod;
+}
+
+.color-20 {
+  background-color: orangered;
+}
+
+.color-21 {
+  background-color: sienna;
+}
+
+.color-22 {
+  background-color: maroon;
 }

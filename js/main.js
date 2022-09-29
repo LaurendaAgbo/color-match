@@ -1,3 +1,5 @@
-let game = new Game();
+document.addEventListener("DOMContentLoaded", function(event) {
+	let game = new Game();
 
-game.init();
+	game.init();
+});
