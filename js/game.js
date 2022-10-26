@@ -64,12 +64,11 @@ class Game {
   }
   
   showLevel (boardElement, numberOfCards) {
-    const boardCards = [];
     let cardsHTML = '';
 
     for (let i = 0; i < numberOfCards; i++) {
       cardsHTML +=
-        '<div class="card flipped">\n' +
+        '<div class="card">\n' +
         '<div class="face-container">\n' +
         '<div class="hide-face"></div>\n' +
         '<div class="middle-face"></div>\n' +
@@ -85,11 +84,10 @@ class Game {
     for (let i = 0; i < cardsElements.length; i++) {
       const element = cardsElements[i];
       const color = randomColorPairs[i];
-      const card = this.setColor(element, color)
-  
-      boardCards.push(card);
+      this.setColor(element, color);
     }
 
+    this.onCardClick();
 
   }
 
@@ -126,9 +124,75 @@ class Game {
   keepScore () {
   
   }
-  
-  onPaireClick () {
-  
+
+  flipCard (card, flipElements) {
+    card.classList.add('flipped');
+
+    if (!flipElements.hasFlippedCard) {
+      flipElements.hasFlippedCard = true;
+      flipElements.firstCard = card;
+      return flipElements;
+    }
+   
+    flipElements.secondCard = card;
+    flipElements.hasFlippedCard = false;
+
+    flipElements = this.checkForMatch(flipElements);
+    
+    return flipElements;
+  }
+
+  checkForMatch (flipElements) {
+    if (this.getColor(flipElements.firstCard) === this.getColor(flipElements.secondCard)) {
+      flipElements.matchesFound+=1;
+      console.log(flipElements.matchesFound);
+    } else {
+      flipElements = this.unflipCards(flipElements); 
+    }
+    flipElements = this.disableCards(flipElements);
+    return flipElements;
+  }
+
+  getColor (card) {
+    const showFaceElement = card.getElementsByClassName('show-face')[0];
+    return showFaceElement.classList[1];
+  }
+
+  disableCards (flipElements) {
+    flipElements.firstCard = null;
+    flipElements.secondCard = null;
+    return flipElements;
+  }
+
+  unflipCards (flipElements) {
+    const a = flipElements.firstCard;
+    const b = flipElements.secondCard;
+    setTimeout(function() {
+      a.classList.remove('flipped');;
+      b.classList.remove('flipped');;
+    }, 400);
+    return flipElements;
+  }
+
+  onCardClick () {
+    let boardCards = [];
+    boardCards = document.querySelectorAll('.card');
+    var firstCard, secondCard;
+    let flipElements = {
+      hasFlippedCard: false, 
+      firstCard: firstCard, 
+      secondCard: secondCard,
+      matchesFound: 0
+    };
+    var myListener;
+    const mainClass = this;
+
+    boardCards.forEach((card) => { 
+      myListener = function() {
+        flipElements = mainClass.flipCard(this, flipElements);
+      };
+      card.addEventListener('click', myListener)
+    });
   }
   
   checkGameStatus () {
