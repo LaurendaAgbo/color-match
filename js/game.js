@@ -1,17 +1,40 @@
 class Game {
   constructor () {
+    // this.level = level;
   }
 
   init () {
-    this.generateLevel(1);
+    const level = parseInt(document.getElementById('level').textContent); 
+    this.generateLevel(level);
   }
 
-  showPopup () {
+  showPopup (popup) {
+    document.querySelectorAll('.overlay').forEach(function (elm) {
+      elm.style.display = 'none';
+    });
   
+    if (popup == 'win') {
+      document.querySelector('#win').style.display = 'flex';
+    } else if (popup == 'lose') {
+      document.querySelector('#lose').style.display = 'flex';
+    } else if (popup == 'start') {
+      document.querySelector('#instructions').style.display = 'flex';
+    }
   }
   
-  hidePopup () {
-  
+  hidePopup (popup) {
+    if (popup == 'win') {
+      document.querySelector('#win').style.display = 'none';
+    } else if (popup == 'lose') {
+      document.querySelector('#lose').style.display = 'none';
+    } else if (popup == 'start') {
+      document.querySelector('#instructions').style.display = 'none';
+    }
+    else if (popup == '') {
+      document.querySelectorAll('.overlay').forEach(function (elm) {
+        elm.style.display = 'none';
+      });
+    }
   }
   
   playMusic () {
@@ -23,48 +46,21 @@ class Game {
   }
   
   generateLevel (level) {
+    this.hidePopup('');
     const boardElement = document.getElementById('game-content');
-    let numberOfCards;
-    switch (level) {
-      case 1:
-        numberOfCards = 8;
-        break;
-      case 2:
-        numberOfCards = 12;
-        break;
-      case 3:
-        numberOfCards = 16;
-        break;
-      case 4:
-        numberOfCards = 20;
-        break;
-      case 5:
-        numberOfCards = 24;
-        break;
-      case 6:
-        numberOfCards = 28;
-        break;
-      case 7:
-        numberOfCards = 32;
-        break;
-      case 8:
-        numberOfCards = 36;
-        break;
-      case 9:
-        numberOfCards = 40;
-        break;
-      case 10:
-        numberOfCards = 44;
-        break;
-    
-      default:
-        break;
-    }
-    this.showLevel(boardElement, numberOfCards);
+    const levelElement = document.getElementById('level');
+    levelElement.innerText = level;
+    let numberOfCards = [8, 12, 16, 20, 24, 28, 32, 36, 40, 44];
+    let levelTime = [20, 40, 60, 100, 140, 180, 220, 260, 300, 360]
+    this.showLevel(boardElement, numberOfCards[level-1], levelTime[level-1]);
   }
   
-  showLevel (boardElement, numberOfCards) {
+  showLevel (boardElement, numberOfCards, levelTime) {
     let cardsHTML = '';
+    const cardsToMatch = numberOfCards/2;
+    let matchesFound = 0;
+    document.getElementById('total').innerText = cardsToMatch;
+    this.keepScore(matchesFound);
 
     for (let i = 0; i < numberOfCards; i++) {
       cardsHTML +=
@@ -87,7 +83,24 @@ class Game {
       this.setColor(element, color);
     }
 
-    this.onCardClick();
+    let timer;
+    let timerElement = document.getElementById('timer'); 
+    let timeLeft = levelTime; // seconds
+    let timeLeftText = '';
+    const mainClass = this;
+    timer = setInterval(function () {
+      timeLeft = timeLeft - 1;
+      if(timeLeft >= 0) {
+        timeLeftText = mainClass.setClock(timeLeft);
+        timerElement.innerText = timeLeftText; 
+      }
+      else {
+        clearInterval(timer);
+        mainClass.showPopup('lose');
+      }
+    }, 1000);
+
+    this.onCardClick(matchesFound, cardsToMatch, timer);
 
   }
 
@@ -99,33 +112,33 @@ class Game {
   generateColorPairs(numberOfCards) {
     const colorPairs = [];
     const numberOfPairs = numberOfCards/2;
-    if (colorPairs.length > 0) {
-      return colorPairs;
-    } 
-    else {
+    if (colorPairs.length <= 0) {
       for (let i = 0; i < numberOfPairs; i++) {
         colorPairs.push('color-' + i);
         colorPairs.push('color-' + i);
       }
-  
-      return colorPairs;
     }
+    return colorPairs;
+
   }
 
-  shuffleColors(numberOfCards) {
+  shuffleColors (numberOfCards) {
     const colorPairs = this.generateColorPairs(numberOfCards)
     return shuffle(colorPairs);
   }
   
-  setClock () {
-  
+  setClock (timeLeft) {
+    let min = ((timeLeft / 60) < 10 ? '0' : '')  + parseInt(timeLeft / 60);
+    let sec = ((timeLeft % 60) < 10 ? '0' : '')  + timeLeft % 60;
+    return min + ':' + sec; 
+    
   }
   
-  keepScore () {
-  
+  keepScore (matchesFound) {
+    document.getElementById('score').innerText = matchesFound;
   }
 
-  flipCard (card, flipElements) {
+  flipCard (card, flipElements, timer) {
     card.classList.add('flipped');
 
     if (!flipElements.hasFlippedCard) {
@@ -137,15 +150,16 @@ class Game {
     flipElements.secondCard = card;
     flipElements.hasFlippedCard = false;
 
-    flipElements = this.checkForMatch(flipElements);
+    flipElements = this.checkForMatch(flipElements, timer);
     
     return flipElements;
   }
 
-  checkForMatch (flipElements) {
+  checkForMatch (flipElements, timer) {
     if (this.getColor(flipElements.firstCard) === this.getColor(flipElements.secondCard)) {
       flipElements.matchesFound+=1;
-      console.log(flipElements.matchesFound);
+      this.keepScore(flipElements.matchesFound);
+      this.checkGameStatus(flipElements.matchesFound, flipElements.cardsToMatch, timer);
     } else {
       flipElements = this.unflipCards(flipElements); 
     }
@@ -174,29 +188,34 @@ class Game {
     return flipElements;
   }
 
-  onCardClick () {
+  onCardClick (matchesFound, cardsToMatch, timer) {
     let boardCards = [];
     boardCards = document.querySelectorAll('.card');
     var firstCard, secondCard;
     let flipElements = {
+      currentLevel: parseInt(document.getElementById('level').textContent),
       hasFlippedCard: false, 
       firstCard: firstCard, 
       secondCard: secondCard,
-      matchesFound: 0
+      matchesFound: matchesFound,
+      cardsToMatch: cardsToMatch
     };
     var myListener;
     const mainClass = this;
 
     boardCards.forEach((card) => { 
       myListener = function() {
-        flipElements = mainClass.flipCard(this, flipElements);
+        flipElements = mainClass.flipCard(this, flipElements, timer);
       };
       card.addEventListener('click', myListener)
     });
   }
   
-  checkGameStatus () {
-  
+  checkGameStatus (matchesFound, cardsToMatch, timer) {
+    if (matchesFound == cardsToMatch) {
+      this.showPopup('win');
+      clearInterval(timer);
+    }
   }
 }
 
