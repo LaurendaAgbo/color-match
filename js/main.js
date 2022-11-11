@@ -6,19 +6,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	function startGame () {
 		game.hidePopup('');
 	
-		game.init();
-		// if (floor) {
-		// 	cleanWorld();  
-		// }
-		// game.scene.scenes[0].drawWorld();
-		
-		// gameMusic.play({
-		// 	loop: true,
-		// 	volume: 0.5
-		// });
-		
-		// gameStop = false;
-		// timedEvent.paused = false;  
+		game.init(); 
 	}
 
 	document.getElementById("nextLevel").onclick = function () {
