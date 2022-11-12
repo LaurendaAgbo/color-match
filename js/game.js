@@ -1,6 +1,5 @@
 class Game {
   constructor () {
-    // this.level = level;
   }
 
   init () {
@@ -37,16 +36,25 @@ class Game {
     }
   }
   
-  playMusic () {
-  
+  playMusic (music, volume) {
+    let playing = document.querySelector(music);
+    playing.play();
+    playing.volume = volume;
   }
   
-  stopMusic () {
-  
+  stopMusic (music) {
+    if (music == '') {
+      let sounds = document.getElementsByTagName('audio');
+      for (let i = 0; i < sounds.length; i++) {
+        sounds[i].pause();
+      }
+    }
+      
   }
   
   generateLevel (level) {
     this.hidePopup('');
+    this.playMusic('#playing', 0.1);
     const boardElement = document.getElementById('game-content');
     const levelElement = document.getElementById('level');
     levelElement.innerText = level;
@@ -93,9 +101,14 @@ class Game {
       if(timeLeft >= 0) {
         timeLeftText = mainClass.setClock(timeLeft);
         timerElement.innerText = timeLeftText; 
+        if (timeLeft <= 5) {
+          mainClass.playMusic('#ticTac', 0.5);
+        }
       }
       else {
         clearInterval(timer);
+        mainClass.stopMusic('');
+        mainClass.playMusic('#loseSound', 0.5);
         mainClass.showPopup('lose');
       }
     }, 1000);
@@ -139,6 +152,7 @@ class Game {
   }
 
   flipCard (card, flipElements, timer) {
+    if (card === flipElements.firstCard) return flipElements;
     card.classList.add('flipped');
 
     if (!flipElements.hasFlippedCard) {
@@ -157,7 +171,10 @@ class Game {
 
   checkForMatch (flipElements, timer) {
     if (this.getColor(flipElements.firstCard) === this.getColor(flipElements.secondCard)) {
+      this.playMusic('#match', 0.5);
       flipElements.matchesFound+=1;
+      flipElements.firstCard.classList.add('inactive');
+      flipElements.secondCard.classList.add('inactive');
       this.keepScore(flipElements.matchesFound);
       this.checkGameStatus(flipElements.matchesFound, flipElements.cardsToMatch, timer);
     } else {
@@ -205,6 +222,7 @@ class Game {
 
     boardCards.forEach((card) => { 
       myListener = function() {
+        mainClass.playMusic('#click', 0.5);
         flipElements = mainClass.flipCard(this, flipElements, timer);
       };
       card.addEventListener('click', myListener)
@@ -213,6 +231,8 @@ class Game {
   
   checkGameStatus (matchesFound, cardsToMatch, timer) {
     if (matchesFound == cardsToMatch) {
+      this.stopMusic('');
+      this.playMusic('#winSound', 0.5);
       this.showPopup('win');
       clearInterval(timer);
     }

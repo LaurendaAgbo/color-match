@@ -121,6 +121,10 @@ body {
 	position: relative;
 }
 
+.inactive {
+  pointer-events: none;
+}
+
 .face-container {
   height: 200%;
   width: 100%;
