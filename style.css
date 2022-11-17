@@ -365,3 +365,7 @@ body {
 .color-22 {
   background-color: maroon;
 }
+
+audio {
+  display: none;
+}
